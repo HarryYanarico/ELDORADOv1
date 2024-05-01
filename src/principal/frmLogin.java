@@ -4,6 +4,13 @@
  */
 package principal;
 
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import conexion.conexionMysql;
 import java.awt.Color;
 import java.awt.Image;
 import javax.swing.Icon;
@@ -24,6 +31,7 @@ public class frmLogin extends javax.swing.JDialog {
      */
     //formulario de registro
     public static frmRegistro fr;
+    public static frmDashboard fd;
     
     public frmLogin(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -77,6 +85,11 @@ public class frmLogin extends javax.swing.JDialog {
         });
 
         jButton1.setText("Iniciar Session");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jLabel1.setForeground(new java.awt.Color(0, 102, 153));
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/images.png"))); // NOI18N
@@ -178,6 +191,43 @@ public class frmLogin extends javax.swing.JDialog {
                 JOptionPane.showMessageDialog(this, "tenga un buen dia");                
             }            
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        //boton de form que redirige verifica datos de login
+        String nombreUsuario = jTextField1.getText();
+        String contraseñaUsuario = jPasswordField1.getText();
+        if (nombreUsuario.isEmpty() || contraseñaUsuario.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Por favor ingrese nombre de usuario y contraseña");
+            return;
+        }
+        
+        conexionMysql conexion = new conexionMysql();
+        try (Connection conn = conexion.conectar()) {
+            // Consulta SQL para buscar el nombre de usuario en la base de datos
+            String sql = "SELECT * FROM empleados WHERE name = ? AND contraseña = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, nombreUsuario);
+                stmt.setString(2, contraseñaUsuario);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    // Verificar si se encontró algún resultado
+                    if (rs.next()) {
+                        // Si hay resultados, el nombre de usuario y la contraseña son válidos
+                        JOptionPane.showMessageDialog(null, "Inicio de sesión exitoso");
+                        setVisible(false);
+                        fd=new frmDashboard();
+                        fd.setLocationRelativeTo(null);
+                        fd.setVisible(true);
+                    } else {
+                        // Si no hay resultados, el nombre de usuario o la contraseña son incorrectos
+                        JOptionPane.showMessageDialog(null, "Nombre de usuario o contraseña incorrectos");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            // Manejar cualquier error de la base de datos
+            JOptionPane.showMessageDialog(null, "Error al conectar a la base de datos: " + e.getMessage());
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments

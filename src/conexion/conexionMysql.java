@@ -6,6 +6,7 @@ package conexion;
 
 import com.mysql.jdbc.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 /**
  *
  * @author Harry
@@ -18,7 +19,7 @@ public class conexionMysql {
             Class.forName("com.mysql.jdbc.Driver");
             cn=(Connection) DriverManager.getConnection("jdbc:mysql://localhost/prueba1","root",""); 
             System.out.println("Conectado");
-        } catch(Exception e){
+        } catch(ClassNotFoundException | SQLException e){
             System.out.println("Error de Conexion"+e);
         }
         return cn;
